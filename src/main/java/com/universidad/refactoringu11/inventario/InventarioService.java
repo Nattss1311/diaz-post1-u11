@@ -1,9 +1,12 @@
 package com.universidad.refactoringu11.inventario;
-
+// Import que introduce el acoplamiento cíclico:
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.universidad.refactoringu11.reportes.ReporteBajoStockService;
 
 @Service
 public class InventarioService {
@@ -59,5 +62,11 @@ public class InventarioService {
             return "OK_BAJO_STOCK_REORDEN_" + cantidadReorden;
         }
         return "OK_" + nuevoStock;
+    }
+    private ReporteBajoStockService reporteBajoStockService;
+
+    @Autowired(required = false)
+    public void setReporteBajoStockService(ReporteBajoStockService reporteBajoStockService) {
+        this.reporteBajoStockService = reporteBajoStockService;
     }
 }
