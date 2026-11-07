@@ -22,6 +22,12 @@ public class InventarioService {
         productos.add(producto);
     }
 
+    public List<Producto> obtenerProductosBajoStock() {
+        return productos.stream()
+                .filter(p -> calculadoraReorden.necesitaReorden(p.getStock(), p.getStockMinimo()))
+                .toList();
+    }
+
     public String actualizarInventario(Long productoId, int cantidad, String tipoMovimiento) {
         if (!esMovimientoValido(productoId, cantidad, tipoMovimiento)) return "ERROR_DATOS_INVALIDOS";
         Producto producto = buscarProducto(productoId);
@@ -36,7 +42,7 @@ public class InventarioService {
     }
 
     private boolean esMovimientoValido(Long productoId, int cantidad, String tipoMovimiento) {
-        return productoId != null && cantidad > 0 
+        return productoId != null && cantidad > 0
                 && ("ENTRADA".equals(tipoMovimiento) || "SALIDA".equals(tipoMovimiento));
     }
 
@@ -52,7 +58,7 @@ public class InventarioService {
     }
 
     private void registrarAuditoria(String tipoMovimiento, int cantidad, String nombreProducto, int stockFinal) {
-        String registro = tipoMovimiento + " de " + cantidad + " unidades de " 
+        String registro = tipoMovimiento + " de " + cantidad + " unidades de "
                 + nombreProducto + " -> stock final: " + stockFinal;
         movimientos.add(registro);
         System.out.println(registro);

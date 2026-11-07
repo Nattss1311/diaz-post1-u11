@@ -265,7 +265,10 @@ Cycle detected: Slice inventario ->
    public void setNotificador(NotificadorBajoStock notificador) { this.notificador = notificador; }
    ```
 
-3. `ReporteBajoStockService` **implementa** `NotificadorBajoStock` y conserva su dependencia hacia `InventarioService`, que es la única dirección permitida (`reportes → inventario`).
+3. `ReporteBajoStockService` **implementa** `NotificadorBajoStock` y conserva su dependencia hacia `InventarioService`, que es la única dirección permitida (`reportes → inventario`):
+   - `notificar(...)` registra cada alerta de bajo stock recibida desde el dominio.
+   - `generarReporte()` arma un reporte de texto plano con los productos bajo el stock mínimo, que obtiene de `InventarioService.obtenerProductosBajoStock()`, y con las alertas recibidas.
+   - El constructor recibe `@Lazy InventarioService`. El ciclo entre **paquetes** ya no existe, pero entre los **beans** de Spring seguía uno: `InventarioService` recibe el notificador por *setter* y `ReporteBajoStockService` recibe `InventarioService` por constructor. Spring Boot 3 prohíbe las referencias circulares por defecto, así que `@Lazy` inyecta un *proxy* y permite que el contexto arranque. No agrega ningún import de `reportes` en `inventario`.
 
 **Diagrama de paquetes DESPUÉS (sin ciclo): todas las flechas apuntan hacia el dominio**
 
@@ -399,8 +402,10 @@ Se ejecutó la suite completa **sin modificar** `InventarioServiceTest`, `Clasif
 | 6 | `8cdd09b` | `test: agregar prueba de arquitectura que detecta ciclo entre inventario y reportes (en rojo)` | 2, ArchUnit en rojo |
 | 7 | `32d7aad` | `refactor: invertir la dependencia entre inventario y reportes extrayendo NotificadorBajoStock` | 2, DIP |
 | 8 | `84ae35c` | `docs: completar README con evidencia de capturas, diagramas de paquetes y decisiones de diseno` | Documentación |
+| 9 | `490de8e` | `docs: actualizar README definitivo con tablas de metricas, diagramas y enlaces de evidencias` | Documentación |
+| 10 | (ver `git log`) | `refactor: implementar ReporteBajoStockService y evitar ciclo de beans con @Lazy` | 2, cierre |
 
-Se cumple el mínimo de 3 commits descriptivos por parte (4 en la Parte 1 y 3 en la Parte 2), más el commit de documentación.
+Se cumple el mínimo de 3 commits descriptivos por parte (4 en la Parte 1 y 4 en la Parte 2), más los commits de documentación. Las 13 pruebas siguen en verde después del commit 10, y las pruebas de la Parte 1 siguen sin modificarse.
 
 ---
 
